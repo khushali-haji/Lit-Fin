@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>FinEd — Onboarding</title>
+<style>
+  :root {
+    --bg: #0f1226;
+    --card: #ffffff;
+    --ink: #1b1f3b;
+    --muted: #6b7088;
+    --line: #e7e8ef;
+    --accent: #3b5bdb;
+    --accent-soft: #eaf0ff;
+    --good: #2f9e6f;
+    --warn: #e8833a;
+    --bad: #d6455d;
+    --chip: #f2f3f8;
+    --radius: 16px;
+    --shadow: 0 10px 30px rgba(15,18,38,.12);
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    margin: 0; height: 100%;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: radial-gradient(1200px 600px at 50% -10%, #20264f 0%, var(--bg) 60%);
+    color: var(--ink);
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  /* Phone frame */
+  .phone {
+    width: 390px; max-width: 100vw; height: 844px; max-height: 100vh;
+    background: #f6f7fb; border-radius: 44px;
+    box-shadow: var(--shadow), 0 0 0 12px #11132a, 0 0 0 14px #2a2f55;
+    overflow: hidden; position: relative; display: flex; flex-direction: column;
+  }
+  @media (max-width: 430px) {
+    .phone { width: 100vw; height: 100vh; border-radius: 0; box-shadow: none; }
+  }
+  .notch {
+    position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+    width: 150px; height: 26px; background: #11132a;
+    border-bottom-left-radius: 16px; border-bottom-right-radius: 16px; z-index: 30;
+  }
+
+  /* Top bar */
+  .topbar {
+    padding: 40px 20px 10px; display: flex; align-items: center; gap: 12px;
+    background: #fff; border-bottom: 1px solid var(--line);
+  }
+  .back {
+    border: none; background: var(--chip); width: 34px; height: 34px; border-radius: 50%;
+    font-size: 18px; color: var(--ink); cursor: pointer; display: grid; place-items: center;
+    visibility: hidden;
+  }
+  .progress-wrap { flex: 1; }
+  .progress-meta { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); margin-bottom: 6px; }
+  .progress { height: 6px; background: var(--line); border-radius: 99px; overflow: hidden; }
+  .progress > i { display: block; height: 100%; width: 0; background: linear-gradient(90deg,#3b5bdb,#6f86ff); border-radius: 99px; transition: width .35s ease; }
+
+  /* Content */
+  .screen { flex: 1; overflow-y: auto; padding: 22px 20px 16px; }
+  .eyebrow { font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); margin: 0 0 8px; }
+  h1 { font-size: 23px; line-height: 1.25; margin: 0 0 8px; }
+  h2 { font-size: 19px; margin: 0 0 6px; }
+  .sub { color: var(--muted); font-size: 14px; line-height: 1.5; margin: 0 0 18px; }
+
+  .opt {
+    display: flex; align-items: center; gap: 12px; width: 100%; text-align: left;
+    background: #fff; border: 1.5px solid var(--line); border-radius: 14px;
+    padding: 15px 16px; margin-bottom: 10px; font-size: 15px; color: var(--ink);
+    cursor: pointer; transition: .15s; line-height: 1.35;
+  }
+  .opt:hover { border-color: #c7cdf0; }
+  .opt.sel { border-color: var(--accent); background: var(--accent-soft); font-weight: 600; }
+  .opt .dot { width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--line); flex: 0 0 auto; display:grid; place-items:center; }
+  .opt.sel .dot { border-color: var(--accent); }
+  .opt.sel .dot::after { content:""; width: 10px; height: 10px; border-radius: 50%; background: var(--accent); }
+  .opt.check .dot { border-radius: 6px; }
+  .opt.check.sel .dot::after { border-radius: 2px; }
+
+  .field { margin-bottom: 14px; }
+  label.lbl { display:block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: var(--ink); }
+  input.txt {
+    width: 100%; padding: 14px 14px; border: 1.5px solid var(--line); border-radius: 12px;
+    font-size: 15px; color: var(--ink); background: #fff; outline: none;
+  }
+  input.txt:focus { border-color: var(--accent); }
+
+  .note { font-size: 12px; color: var(--muted); background: var(--chip); border-radius: 10px; padding: 10px 12px; line-height: 1.45; margin-top: 6px; }
+  .note b { color: var(--ink); }
+
+  /* Footer */
+  .footer { padding: 12px 20px 26px; background: #fff; border-top: 1px solid var(--line); }
+  .btn {
+    width: 100%; border: none; border-radius: 14px; padding: 16px; font-size: 16px; font-weight: 700;
+    background: var(--accent); color: #fff; cursor: pointer; transition: .15s;
+  }
+  .btn:disabled { opacity: .4; cursor: not-allowed; }
+  .btn.ghost { background: transparent; color: var(--muted); font-weight: 600; padding: 12px; }
+
+  /* Welcome */
+  .hero { height: 100%; display: flex; flex-direction: column; justify-content: center; text-align: center; padding: 0 6px; }
+  .logo { width: 64px; height: 64px; border-radius: 20px; background: linear-gradient(135deg,#3b5bdb,#6f86ff); margin: 0 auto 20px; display:grid; place-items:center; color:#fff; font-weight:800; font-size: 26px; box-shadow: var(--shadow); }
+  .hero h1 { font-size: 30px; }
+  .pills { display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-top: 18px; }
+  .pill { background: var(--chip); border-radius: 99px; padding: 7px 13px; font-size: 12px; color: var(--muted); font-weight:600; }
+
+  /* Reveal */
+  .gauge { background:#fff; border-radius: var(--radius); border:1px solid var(--line); padding: 18px; margin-bottom: 14px; box-shadow: var(--shadow); }
+  .score-big { font-size: 44px; font-weight: 800; line-height: 1; }
+  .score-big small { font-size: 16px; color: var(--muted); font-weight: 600; }
+  .bar { height: 10px; background: var(--line); border-radius: 99px; margin: 14px 0 6px; position: relative; }
+  .bar > i { position:absolute; top:-3px; width: 3px; height: 16px; background:#11132a; border-radius:2px; }
+  .bar > span { display:block; height:100%; border-radius:99px; background: linear-gradient(90deg,#2f9e6f,#e8833a,#d6455d); }
+  .legend { display:flex; justify-content:space-between; font-size:11px; color:var(--muted); }
+  .lvl-chip { display:inline-block; padding:5px 11px; border-radius:99px; font-size:12px; font-weight:700; }
+
+  .course { background:#fff; border:1px solid var(--line); border-radius:14px; padding:14px; margin-bottom:10px; box-shadow: 0 4px 14px rgba(15,18,38,.05); }
+  .course .ctop { display:flex; align-items:center; gap:10px; }
+  .course .ico { width:38px; height:38px; border-radius:11px; background:var(--accent-soft); display:grid; place-items:center; font-size:18px; flex:0 0 auto; }
+  .course h3 { margin:0; font-size:15px; }
+  .course .why { font-size:13px; color:var(--muted); line-height:1.45; margin:10px 0 0; }
+  .course .why b { color: var(--accent); }
+  .locktag { font-size:11px; color:var(--muted); margin-top:14px; text-align:center; }
+
+  .checkline { display:flex; align-items:flex-start; gap:10px; font-size:14px; margin-bottom:10px; color:var(--ink); }
+  .checkline .b { width:20px;height:20px;border-radius:50%;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;font-size:12px;font-weight:800;flex:0 0 auto; }
+  .skip { font-size:12px; color:var(--muted); background:#fff7ec; border:1px solid #f5e4cc; border-radius:10px; padding:10px 12px; line-height:1.45; margin:0 0 16px; }
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="notch"></div>
+
+  <div class="topbar" id="topbar">
+    <button class="back" id="backBtn" aria-label="Back">‹</button>
+    <div class="progress-wrap">
+      <div class="progress-meta"><span id="stepLabel">Welcome</span><span id="stepCount"></span></div>
+      <div class="progress"><i id="bar"></i></div>
+    </div>
+  </div>
+
+  <div class="screen" id="screen"></div>
+
+  <div class="footer" id="footer"></div>
+</div>
+
+<script>
+/* ---------------------------------------------------------------------------
+   FinEd onboarding prototype
+   Mirrors PRD §3 layered onboarding: knowledge -> behavior/vulnerability ->
+   income/location -> goals/prefs -> profile reveal -> optional context.
+   Scoring produces the three signals; vulnerability maps to the NFCS
+   five-behavior index and is compared to a verified benchmark.
+--------------------------------------------------------------------------- */
+
+// Verified NFCS 2024 vulnerability index by income band (from CONTEXT.md)
+const BENCHMARK = { Lower: 50.5, Middle: 37.5, Higher: 22.0 };
+
+const KNOWLEDGE = [
+  { id:'k_interest', q:'You put $100 in a savings account earning 2% a year. After 5 years, how much would you have?',
+    opts:['More than $102','Exactly $102','Less than $102'], correct:0 },
+  { id:'k_inflation', q:'Your savings earn 1% a year and inflation is 2% a year. After one year, what you can buy is…',
+    opts:['More than today','The same as today','Less than today'], correct:2 },
+  { id:'k_bonds', q:'When interest rates rise, what usually happens to bond prices?',
+    opts:['They rise','They fall','They stay the same'], correct:1 },
+  { id:'k_mortgage', q:'A 15-year mortgage has higher monthly payments than a 30-year one, but you pay less interest overall.',
+    opts:['True','False'], correct:0 },
+  { id:'k_diversify', q:'Buying a single company’s stock is usually safer than buying a stock mutual fund.',
+    opts:['True','False'], correct:1 },
+];
+
+// flagWhen = indices that count as a hardship flag for the vulnerability index
+const BEHAVIOR = [
+  { id:'b_bills', v:'J4', q:'In a typical month, how hard is it to cover your bills and expenses?',
+    opts:['Very difficult','Somewhat difficult','Not at all difficult'], flagWhen:[0,1], topic:'bills' },
+  { id:'b_fund', v:'J5', q:'Have you set aside emergency savings that would cover 3 months of expenses?',
+    opts:['Yes','No'], flagWhen:[1], topic:'fund' },
+  { id:'b_spend', v:'J3', q:'Over the past year, your spending was…',
+    opts:['Less than your income','About equal to your income','More than your income'], flagWhen:[2], topic:'spend' },
+  { id:'b_overdraft', v:'B4', q:'Do you occasionally overdraw your checking account?',
+    opts:['No','Yes'], flagWhen:[1], topic:'overdraft' },
+  { id:'b_predatory', v:'G25', q:'In the past 5 years, have you used a payday loan, auto-title loan, pawn shop, rent-to-own, or tax-refund advance?',
+    opts:['No','Yes'], flagWhen:[1], topic:'predatory' },
+];
+
+const GOALS = [
+  { id:'g_fund', label:'Build an emergency fund', icon:'🛟', topic:'fund' },
+  { id:'g_debt', label:'Get out of debt', icon:'⛓️', topic:'debt' },
+  { id:'g_budget', label:'Start budgeting', icon:'📒', topic:'spend' },
+  { id:'g_invest', label:'Start investing', icon:'📈', topic:'invest' },
+  { id:'g_home', label:'Save for a home', icon:'🏠', topic:'home' },
+  { id:'g_retire', label:'Plan for retirement', icon:'🌅', topic:'retire' },
+];
+
+// Topic -> micro-course (title + why template). Behavior topics are urgent-first.
+const COURSES = {
+  bills:    { icon:'📅', title:'Budgeting That Survives the Month', why:'You said bills are hard to cover, so we start with cash-flow basics built for a tight budget.' },
+  fund:     { icon:'🛟', title:'Starting an Emergency Fund From $0', why:'You don’t have a 3-month cushion yet — the single biggest driver of financial strain in the data.' },
+  spend:    { icon:'⚖️', title:'Spending Less Than You Earn', why:'Your spending is running ahead of your income, so this comes before anything else.' },
+  overdraft:{ icon:'🚫', title:'Killing Overdraft Fees for Good', why:'Overdrafts are quietly costing you — here’s how to stop them.' },
+  predatory:{ icon:'🔁', title:'Cheaper Alternatives to Payday Loans', why:'High-cost borrowing is one of the heaviest strains — we’ll find lower-cost options.' },
+  debt:     { icon:'⛓️', title:'A Plan to Tackle Your Debt', why:'You told us getting out of debt is a goal.' },
+  invest:   { icon:'📈', title:'Investing Basics, From Scratch', why:'You want to start investing — we’ll build the foundation first.' },
+  home:     { icon:'🏠', title:'Saving for a Home', why:'You’re aiming to buy a home, so we’ll map the path to a down payment.' },
+  retire:   { icon:'🌅', title:'Retirement 101', why:'You want to plan for retirement — here’s where it starts.' },
+};
+
+// ---- Flow definition -------------------------------------------------------
+const flow = [
+  { type:'welcome', section:'' },
+  { type:'account', section:'Account' },
+  ...KNOWLEDGE.map(k => ({ type:'choice', section:'Knowledge', q:k })),
+  ...BEHAVIOR.map(b => ({ type:'choice', section:'Your money', q:b })),
+  { type:'income', section:'About you' },
+  { type:'location', section:'About you' },
+  { type:'goals', section:'Goals' },
+  { type:'prefs', section:'Goals' },
+  { type:'reveal', section:'Your profile' },
+  { type:'context', section:'Optional' },
+  { type:'done', section:'' },
+];
+
+const state = { answers:{}, goals:[], income:null, prefs:{} };
+let i = 0;
+
+const screen = document.getElementById('screen');
+const footer = document.getElementById('footer');
+const bar = document.getElementById('bar');
+const backBtn = document.getElementById('backBtn');
+const stepLabel = document.getElementById('stepLabel');
+const stepCount = document.getElementById('stepCount');
+
+backBtn.onclick = () => { if (i > 0) { i--; render(); } };
+
+function setFooter(label, onClick, opts={}) {
+  footer.innerHTML = '';
+  const b = document.createElement('button');
+  b.className = 'btn'; b.textContent = label; b.onclick = onClick;
+  if (opts.disabled) b.disabled = true;
+  footer.appendChild(b);
+  if (opts.ghost) {
+    const g = document.createElement('button');
+    g.className = 'btn ghost'; g.textContent = opts.ghost.label; g.onclick = opts.ghost.onClick;
+    footer.appendChild(g);
+  }
+  return b;
+}
+
+function next() { i++; render(); }
+
+function render() {
+  const step = flow[i];
+  // progress: count "real" steps after welcome
+  const total = flow.length - 1;
+  bar.style.width = Math.round((i / total) * 100) + '%';
+  stepLabel.textContent = step.section || 'FinEd';
+  stepCount.textContent = (step.section && step.type !== 'welcome' && step.type !== 'done') ? `${i} of ${total}` : '';
+  backBtn.style.visibility = (i > 0 && step.type !== 'done' && step.type !== 'reveal') ? 'visible' : 'hidden';
+  screen.scrollTop = 0;
+
+  ({
+    welcome: renderWelcome,
+    account: renderAccount,
+    choice: renderChoice,
+    income: renderIncome,
+    location: renderLocation,
+    goals: renderGoals,
+    prefs: renderPrefs,
+    reveal: renderReveal,
+    context: renderContext,
+    done: renderDone,
+  })[step.type](step);
+}
+
+function renderWelcome() {
+  screen.innerHTML = `
+    <div class="hero">
+      <div class="logo">F</div>
+      <h1>Financial learning, built for you</h1>
+      <p class="sub">Answer a few quick questions and we’ll build a learning path around your real situation — not a generic course list.</p>
+      <div class="pills">
+        <span class="pill">⏱️ ~10 minutes</span>
+        <span class="pill">🔒 Private</span>
+        <span class="pill">📊 Grounded in federal data</span>
+      </div>
+    </div>`;
+  setFooter('Get started', next);
+}
+
+const DEMO = { email:'demo@fined.app', pw:'demo1234' };
+
+function renderAccount() {
+  screen.innerHTML = `
+    <p class="eyebrow">Step 1</p>
+    <h1>Create your account</h1>
+    <p class="sub">We’ll save your progress so you can pick up anytime.</p>
+    <div class="field"><label class="lbl">Email</label><input class="txt" id="email" type="email" placeholder="you@email.com" value="${state.email||''}"/></div>
+    <div class="field"><label class="lbl">Password</label><input class="txt" id="pw" type="password" placeholder="Create a password"/></div>
+    <button class="opt" id="demoFill" style="margin-top:4px"><span style="font-size:18px">🚀</span><span><b>Use the demo account</b><br><span style="color:var(--muted);font-size:13px;font-weight:400">${DEMO.email} · ${DEMO.pw}</span></span></button>
+    <p class="note">🔒 Handled by <b>Supabase Auth</b>. Sensitive answers are stored in a separate, access-restricted table.</p>`;
+  const emailEl = document.getElementById('email');
+  const pwEl = document.getElementById('pw');
+  const btn = setFooter('Continue', () => {
+    state.email = emailEl.value;
+    next();
+  });
+  const sync = () => btn.disabled = !emailEl.value.includes('@');
+  emailEl.oninput = sync;
+  document.getElementById('demoFill').onclick = () => {
+    emailEl.value = DEMO.email; pwEl.value = DEMO.pw; sync();
+  };
+  sync();
+}
+
+function renderChoice(step) {
+  const q = step.q;
+  const isKnowledge = step.section === 'Knowledge';
+  screen.innerHTML = `
+    <p class="eyebrow">${isKnowledge ? 'Knowledge check' : 'Your habits'}</p>
+    <h1>${q.q}</h1>
+    ${isKnowledge ? '<p class="sub">It’s fine not to know — this just sets your starting point.</p>' : ''}
+    <div id="opts"></div>`;
+  const wrap = document.getElementById('opts');
+  q.opts.forEach((label, idx) => {
+    const el = document.createElement('button');
+    el.className = 'opt' + (state.answers[q.id] === idx ? ' sel' : '');
+    el.innerHTML = `<span class="dot"></span><span>${label}</span>`;
+    el.onclick = () => { state.answers[q.id] = idx; render(); setTimeout(next, 180); };
+    wrap.appendChild(el);
+  });
+  setFooter('Continue', next, { disabled: state.answers[q.id] === undefined });
+}
+
+function renderIncome() {
+  const bands = [['Lower','Under $35,000'],['Middle','$35,000 – $100,000'],['Higher','$100,000 or more']];
+  screen.innerHTML = `
+    <p class="eyebrow">About you</p>
+    <h1>What’s your household income?</h1>
+    <p class="sub">This lets us compare you to people in a similar situation and tune advice to your reality.</p>
+    <div id="opts"></div>`;
+  const wrap = document.getElementById('opts');
+  bands.forEach(([val,label]) => {
+    const el = document.createElement('button');
+    el.className = 'opt' + (state.income === val ? ' sel' : '');
+    el.innerHTML = `<span class="dot"></span><span><b>${val} income</b><br><span style="color:var(--muted);font-size:13px;font-weight:400">${label}</span></span>`;
+    el.onclick = () => { state.income = val; render(); setTimeout(next,180); };
+    wrap.appendChild(el);
+  });
+  setFooter('Continue', next, { disabled: !state.income });
+}
+
+function renderLocation() {
+  screen.innerHTML = `
+    <p class="eyebrow">About you</p>
+    <h1>Where do you live?</h1>
+    <p class="sub">Your ZIP sets your local economic context. We only use it to match content to your area.</p>
+    <div class="field"><label class="lbl">ZIP code</label><input class="txt" id="zip" inputmode="numeric" maxlength="5" placeholder="e.g. 11201" value="${state.zip||''}"/></div>
+    <p class="note">We map ZIP → state to pull the right local benchmark. Nothing here is shared.</p>`;
+  const btn = setFooter('Continue', () => { state.zip = document.getElementById('zip').value; next(); });
+  const sync = () => btn.disabled = (document.getElementById('zip').value.length < 5);
+  document.getElementById('zip').oninput = sync; sync();
+}
+
+function renderGoals() {
+  screen.innerHTML = `
+    <p class="eyebrow">Goals</p>
+    <h1>What do you want to work on?</h1>
+    <p class="sub">Pick any that fit. We’ll weight your path toward these.</p>
+    <div id="opts"></div>`;
+  const wrap = document.getElementById('opts');
+  GOALS.forEach(g => {
+    const el = document.createElement('button');
+    el.className = 'opt check' + (state.goals.includes(g.id) ? ' sel' : '');
+    el.innerHTML = `<span class="dot"></span><span style="font-size:18px">${g.icon}</span><span>${g.label}</span>`;
+    el.onclick = () => {
+      state.goals.includes(g.id) ? state.goals = state.goals.filter(x=>x!==g.id) : state.goals.push(g.id);
+      render();
+    };
+    wrap.appendChild(el);
+  });
+  setFooter('Continue', next, { disabled: state.goals.length === 0 });
+}
+
+function renderPrefs() {
+  const fmts = [['video','▶️ Short videos'],['read','📖 Quick reads'],['interactive','🧩 Interactive']];
+  const times = [['5','5 min'],['10','10 min'],['15','15 min']];
+  screen.innerHTML = `
+    <p class="eyebrow">Goals</p>
+    <h1>How do you like to learn?</h1>
+    <p class="sub">We’ll size your daily lessons and streak goal around this.</p>
+    <label class="lbl">Preferred format</label><div id="fmt"></div>
+    <label class="lbl" style="margin-top:14px">Time per day</label><div id="time"></div>`;
+  const mk = (host, list, key) => {
+    const wrap = document.getElementById(host);
+    list.forEach(([val,label]) => {
+      const el = document.createElement('button');
+      el.className = 'opt' + (state.prefs[key]===val?' sel':'');
+      el.innerHTML = `<span class="dot"></span><span>${label}</span>`;
+      el.onclick = () => { state.prefs[key]=val; render(); };
+      wrap.appendChild(el);
+    });
+  };
+  mk('fmt', fmts, 'format'); mk('time', times, 'time');
+  setFooter('See my profile', next, { disabled: !(state.prefs.format && state.prefs.time) });
+}
+
+// ---- Scoring ---------------------------------------------------------------
+function computeProfile() {
+  let knowledge = 0;
+  KNOWLEDGE.forEach(k => { if (state.answers[k.id] === k.correct) knowledge++; });
+  const level = knowledge <= 2 ? 'Beginner' : knowledge <= 4 ? 'Intermediate' : 'Advanced';
+
+  const flags = [];
+  BEHAVIOR.forEach(b => { if (b.flagWhen.includes(state.answers[b.id])) flags.push(b.topic); });
+  const vuln = Math.round((flags.length / BEHAVIOR.length) * 100);
+  const peer = BENCHMARK[state.income];
+
+  // Recommendations: urgent behavior topics first, then goals, dedup, top 3
+  const urgentOrder = ['spend','fund','bills','overdraft','predatory'];
+  const fromBehavior = urgentOrder.filter(t => flags.includes(t));
+  const fromGoals = state.goals.map(id => GOALS.find(g=>g.id===id).topic);
+  const recs = [...new Set([...fromBehavior, ...fromGoals])].filter(t => COURSES[t]).slice(0,3);
+
+  return { knowledge, level, flags, vuln, peer, recs };
+}
+
+function renderReveal() {
+  const p = computeProfile();
+  state.profile = p;
+  const lvlColor = p.level==='Beginner'?'var(--warn)':p.level==='Intermediate'?'var(--accent)':'var(--good)';
+  const vColor = p.vuln>=60?'var(--bad)':p.vuln>=35?'var(--warn)':'var(--good)';
+  const cmp = p.vuln < p.peer ? 'lower than' : p.vuln > p.peer ? 'higher than' : 'about the same as';
+
+  screen.innerHTML = `
+    <p class="eyebrow">Your profile</p>
+    <h1>Here’s where you stand</h1>
+
+    <div class="gauge">
+      <h2>Financial knowledge</h2>
+      <div class="score-big">${p.knowledge}<small>/5</small></div>
+      <p style="margin:8px 0 0"><span class="lvl-chip" style="background:${lvlColor}1a;color:${lvlColor}">${p.level}</span></p>
+    </div>
+
+    <div class="gauge">
+      <h2>Financial strain score</h2>
+      <div class="score-big" style="color:${vColor}">${p.vuln}<small>/100</small></div>
+      <div class="bar"><span></span><i style="left:${p.peer}%"></i></div>
+      <div class="legend"><span>0 · stable</span><span>100 · high strain</span></div>
+      <p class="note" style="margin-top:12px">Your score is <b>${cmp}</b> the average of <b>${p.peer}</b> for ${state.income} income households nationally (NFCS 2024). The marker ▎ shows that peer average.</p>
+    </div>
+
+    <h2 style="margin-top:18px">Your starter path</h2>
+    <p class="sub">We’re showing just ${p.recs.length} to start. Finish one and the next topic unlocks.</p>
+    <div id="courses"></div>
+    <p class="locktag">🔒 More topics unlock as you go — you’ll never face a giant list.</p>`;
+
+  const wrap = document.getElementById('courses');
+  p.recs.forEach(t => {
+    const c = COURSES[t];
+    const el = document.createElement('div');
+    el.className = 'course';
+    el.innerHTML = `<div class="ctop"><div class="ico">${c.icon}</div><h3>${c.title}</h3></div><p class="why"><b>Why this:</b> ${c.why}</p>`;
+    wrap.appendChild(el);
+  });
+
+  setFooter('Start learning', next, { ghost: { label:'Add more detail to tailor further', onClick: next } });
+}
+
+function renderContext() {
+  screen.innerHTML = `
+    <p class="eyebrow">Optional · skip anytime</p>
+    <h1>Want a sharper fit?</h1>
+    <p class="skip">These help us tailor tone and examples. They’re optional, stored privately, and never used to rank you against others.</p>
+    <div class="field"><label class="lbl">Age range</label><input class="txt" id="age" placeholder="e.g. 25–34"/></div>
+    <div class="field"><label class="lbl">Household</label><input class="txt" id="house" placeholder="e.g. 2 adults, 1 child"/></div>
+    <div class="field"><label class="lbl">Newcomer to the U.S.? (optional)</label><input class="txt" id="imm" placeholder="e.g. moved here in 2021"/></div>
+    <p class="note">We can frame content for your community, but we’re honest that public data can’t yet benchmark these groups — so we won’t pretend to.</p>`;
+  setFooter('Save & finish', next, { ghost:{ label:'Skip for now', onClick: () => { i++; render(); } } });
+}
+
+function renderDone() {
+  const p = state.profile || {};
+  screen.innerHTML = `
+    <div class="hero">
+      <div class="logo" style="background:linear-gradient(135deg,#2f9e6f,#5fd6a0)">✓</div>
+      <h1>You’re all set${state.email?', '+state.email.split('@')[0]:''}!</h1>
+      <p class="sub">Your profile is built and your first ${ (p.recs&&p.recs.length)||3 } lessons are ready. Learn a little each day to keep your streak alive.</p>
+      <div class="pills">
+        <span class="pill">🔥 Day 1 streak</span>
+        <span class="pill">📚 ${ (p.recs&&p.recs.length)||3 } courses unlocked</span>
+      </div>
+      <div class="checkline" style="margin-top:26px;text-align:left">
+        <span class="b">1</span><span>Open today’s finance briefing at the top of your home screen.</span>
+      </div>
+      <div class="checkline" style="text-align:left">
+        <span class="b">2</span><span>Finish your first micro-course to unlock the next topic.</span>
+      </div>
+      <div class="checkline" style="text-align:left">
+        <span class="b">3</span><span>Re-take the check-in anytime your situation changes.</span>
+      </div>
+    </div>`;
+  setFooter('Go to home', () => { i = 0; state.answers={}; state.goals=[]; state.income=null; state.prefs={}; render(); }, { ghost:null });
+  footer.querySelector('.btn').textContent = 'Restart demo';
+}
+
+render();
+</script>
+</body>
+</html>
