@@ -5,6 +5,7 @@ A personalized financial literacy education app, grounded in real federal data.
 ## What's here
 
 - **[PRD.md](PRD.md)** — the product requirements document for FinEd. Problem, users, solution, value props, goals, success metrics, and requirements by user journey.
+- **[CONTEXT.md](CONTEXT.md)** — the data behind the PRD: verified variable mappings, key findings, and what the data can and cannot support. Read this before brainstorming product ideas against the evidence.
 - **[case-study/](case-study/)** — the interactive narrative case study that the PRD is built on. Open `case-study/index.html` in a browser. It includes a 3D state vulnerability map and the supporting charts, plus the data files they read from.
 
 ## Data sources
