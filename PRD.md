@@ -3,7 +3,7 @@
 **Product Requirements Document: Net New Build**
 
 **Build name:** FinEd, a personalized financial literacy education app
-**Owner:** Khushali Haji
+**Owner:** Khushali Haji + Richard Theard
 **Date:** June 28, 2026
 
 ---
