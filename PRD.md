@@ -194,6 +194,10 @@ The product separates two data planes. The **per-user plane** is everything muta
 
 During onboarding, the client sends layered answers through the gateway to the scoring service, which produces the three signals. ZIP or state goes through the local context service to pull the matching benchmark slice. The personalization engine combines the profile, the benchmark slice, the goals, and the content unlock graph to produce the user's two or three frontier courses, and the AI layer grounds the profile narrative and the per-course explanations. Results render in the client and persist through the progress service. For a returning user, completing courses and re-assessing flows back into the progress and scoring services, the personalization engine re-runs, and the path adapts. The briefing service runs independently on a daily refresh.
 
+**Hosting and storage (MVP)**
+
+The MVP runs on **Supabase**, which covers the per-user plane in one platform: managed Postgres for accounts, profiles, assessments, progress, streaks, and content; built-in auth for the secure account requirement; and row level security to isolate sensitive data (the financial snapshot and self reported context) at the database layer. The benchmark plane ships as read-only seeded tables, re-derived when a new survey wave lands. The daily briefing is cached in a single daily-refreshed row rather than stored durably. The API / gateway runs as a stateless service (for example on Railway or Render) against the Supabase database. Wherever it runs, encryption at rest, a defined data region, and snapshot access isolation are required because the app handles financial and sensitive demographic data.
+
 **Key design decisions**
 
 - **Benchmark is frozen, not live.** It is a small, static, audited artifact keyed by income, state, and year. This protects the honesty of the data claims and supports a simple lookup rather than a warehouse.
